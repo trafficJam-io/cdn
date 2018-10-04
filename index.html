@@ -1,13 +1,129 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>TrafficJam</title>
+    <meta charset="utf-8">
+    <title>iframe Window</title>
+    <script>
+
+      /*--------------------------------------------------------------------------
+       * TrafficJam
+       * 2018-10-01
+       *///-----------------------------------------------------------------------
+
+      var signature;
+
+      function bindEvent(element, eventName, eventHandler) {
+        if(element.addEventListener){
+          element.addEventListener(eventName, eventHandler, false);
+        }else if(element.attachEvent){
+          element.attachEvent('on' + eventName, eventHandler);
+        }
+      }
+
+      function broadcast(data) {
+        data.package = 'trafficjam';
+        data.version = '0.1';
+
+        window.parent.postMessage(JSON.stringify(data), '*');
+      }
+
+      function processMessage(e) {
+
+        try{
+          var data = JSON.parse(e.data);
+          var fnc = 'on';
+
+          if(data.package != 'trafficjam'){
+            return;
+          }
+
+          fnc += data.event.charAt(0).toUpperCase() + data.event.slice(1);
+          window[fnc](data);
+
+        }catch(e){
+          //console.log(e.message);
+        }
+
+      }
+
+      function onHit(data) {
+        sendToDataCenter(data);
+      }
+
+      function sendToDataCenter(data, endpoint) {
+
+        endpoint = (typeof endpoint != 'undefined') ? endpoint : '/fuqu/open-api/log-traffic-messages';
+        var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
+        var xmlHttp = new XMLHttpRequest();
+
+        xmlHttp.onreadystatechange = function () {
+          if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
+            //alert('post succeeded');
+          }
+
+          if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
+            //alert('post failed');
+          }
+        };
+
+        xmlHttp.open("POST", url, true);
+        xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
+        xmlHttp.setRequestHeader("Content-Type", "application/json");
+        data = JSON.stringify(data);
+        xmlHttp.send(data);
+
+      }
+
+      function getFromDataCenter(endpoint, callback) {
+        var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
+
+        var xmlHttp = new XMLHttpRequest();
+
+        xmlHttp.onreadystatechange = function () {
+          if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
+            callback(JSON.parse(xmlHttp.responseText));
+          }
+
+          if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
+            //console.log(xmlHttp);
+          }
+
+        };
+
+        xmlHttp.open("GET", url, true);
+        xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
+        xmlHttp.setRequestHeader("Content-Type", "application/json");
+        xmlHttp.send(null);
+      }
+
+      function establishBrowserId() {
+
+        var localStorage = window.localStorage;
+
+        if(localStorage.getItem("trafficjam:signature") === null){
+          getFromDataCenter('/fuqu/factories/browsers/create', function (response) {
+            signature = response.signature;
+            localStorage.setItem("trafficjam:signature", signature);
+            broadcast({browser: signature, event: 'browser'});
+          });
+
+        }else{
+          broadcast({browser: localStorage.getItem("trafficjam:signature"), event: 'browser'});
+        }
+
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        bindEvent(window, 'message', processMessage);
+
+        setTimeout(establishBrowserId, 500)
+      });
+
+    </script>
+
 </head>
 <body>
-<h1>cdn.TrafficJam.com</h1>
+<h1>Terminal</h1>
+<div>...</div>
 </body>
 </html>
