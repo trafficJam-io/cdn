@@ -10,7 +10,7 @@
        * 2018-10-01
        *///-----------------------------------------------------------------------
 
-      var signature;
+      var signature, href;
 
       function bindEvent(element, eventName, eventHandler) {
         if(element.addEventListener){
@@ -23,6 +23,10 @@
       function broadcast(data) {
         data.package = 'trafficjam';
         data.version = '0.1';
+
+        if(typeof signature != 'undefined'){
+          data.browser = signature;
+        }
 
         window.parent.postMessage(JSON.stringify(data), '*');
       }
@@ -46,25 +50,44 @@
 
       }
 
+      function onEmail(data) {
+        sendToDataCenter(data, '/api/log', function (response) {
+          response.event = 'emailResponse';
+          broadcast(response);
+        })
+      }
+
       function onHit(data) {
+        href = data.location;
         sendToDataCenter(data);
       }
 
-      function sendToDataCenter(data, endpoint) {
+      function sendToDataCenter(data, endpoint, callback) {
+
+        if(typeof signature != 'undefined'){
+          data.browser = signature;
+        }
+
+        if(typeof href != 'undefined'){
+          data.location = href;
+        }
 
         endpoint = (typeof endpoint != 'undefined') ? endpoint : '/fuqu/open-api/log-traffic-messages';
         var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
         var xmlHttp = new XMLHttpRequest();
 
-        xmlHttp.onreadystatechange = function () {
-          if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
-            //alert('post succeeded');
-          }
+        if(typeof callback != 'undefined'){
+          xmlHttp.onreadystatechange = function () {
+            if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
+              callback(JSON.parse(xmlHttp.responseText));
+            }
 
-          if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
-            //alert('post failed');
-          }
-        };
+            if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
+              //console.log(xmlHttp);
+            }
+
+          };
+        }
 
         xmlHttp.open("POST", url, true);
         xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
@@ -72,6 +95,7 @@
         data = JSON.stringify(data);
         xmlHttp.send(data);
 
+        xmlHttp;
       }
 
       function getFromDataCenter(endpoint, callback) {
@@ -79,16 +103,18 @@
 
         var xmlHttp = new XMLHttpRequest();
 
-        xmlHttp.onreadystatechange = function () {
-          if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
-            callback(JSON.parse(xmlHttp.responseText));
-          }
+        if(typeof callback != 'undefined'){
+          xmlHttp.onreadystatechange = function () {
+            if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
+              callback(JSON.parse(xmlHttp.responseText));
+            }
 
-          if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
-            //console.log(xmlHttp);
-          }
+            if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
+              //console.log(xmlHttp);
+            }
 
-        };
+          };
+        }
 
         xmlHttp.open("GET", url, true);
         xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
@@ -104,11 +130,12 @@
           getFromDataCenter('/fuqu/factories/browsers/create', function (response) {
             signature = response.signature;
             localStorage.setItem("trafficjam:signature", signature);
-            broadcast({browser: signature, event: 'browser'});
+            broadcast({ event: 'browser'});
           });
 
         }else{
-          broadcast({browser: localStorage.getItem("trafficjam:signature"), event: 'browser'});
+          signature = localStorage.getItem("trafficjam:signature");
+          broadcast({ event: 'browser'});
         }
 
       }

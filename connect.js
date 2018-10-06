@@ -20,6 +20,12 @@ function processMessage(e) {
 
 }
 
+function onEmailResponse(message) {
+  if(message.status == "success"){
+    window.location.href = '/#/success'
+  }
+}
+
 function onBrowser(message) {
 
   var data = {
