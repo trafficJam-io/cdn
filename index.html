@@ -28,7 +28,7 @@
       }
 
       function onHit(data) {
-        //sendToDataCenter(data);
+        sendToDataCenter(data);
       }
 
 
@@ -95,6 +95,7 @@
 
         xmlHttp.open("POST", url, true);
         xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
+        xmlHttp.setRequestHeader("Access-Control-Allow-Origin", "*");
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         data = JSON.stringify(data);
         xmlHttp.send(data);
@@ -122,6 +123,7 @@
 
         xmlHttp.open("GET", url, true);
         xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
+        xmlHttp.setRequestHeader("Access-Control-Allow-Origin", "*");
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.send(null);
       }
