@@ -58,11 +58,11 @@ function addTrafficJamIFrame() {
   iframe.src = url;
   iframe.id = 'trafficjam';
 
-  iframe.style.border = 'none';
-  iframe.style.position = 'absolute';
-  iframe.style.width = '25px';
-  iframe.style.height = '25px'
-  iframe.style.top = '-50px';
+  // iframe.style.border = 'none';
+  // iframe.style.position = 'absolute';
+  // iframe.style.width = '25px';
+  // iframe.style.height = '25px'
+  // iframe.style.top = '-50px';
 
   document.body.appendChild(iframe);
 
