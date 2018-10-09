@@ -10,7 +10,28 @@
        * 2018-10-01
        *///-----------------------------------------------------------------------
 
-      var signature, href;
+      var signature;
+
+      function onStripeToken(data) {
+        sendToDataCenter(data, '/api/log',
+          function (response) {
+            response.event = 'purchaseResponse';
+            broadcast(response);
+          });
+      }
+
+      function onEmail(data) {
+        sendToDataCenter(data, '/api/log',
+          function (response) {
+            response.event = 'emailResponse';
+            broadcast(response);
+          });
+      }
+
+      function onHit(data) {
+        sendToDataCenter(data);
+      }
+
 
       function bindEvent(element, eventName, eventHandler) {
         if(element.addEventListener){
@@ -50,26 +71,10 @@
 
       }
 
-      function onEmail(data) {
-        sendToDataCenter(data, '/api/log', function (response) {
-          response.event = 'emailResponse';
-          broadcast(response);
-        })
-      }
-
-      function onHit(data) {
-        href = data.location;
-        sendToDataCenter(data);
-      }
-
       function sendToDataCenter(data, endpoint, callback) {
 
         if(typeof signature != 'undefined'){
           data.browser = signature;
-        }
-
-        if(typeof href != 'undefined'){
-          data.location = href;
         }
 
         endpoint = (typeof endpoint != 'undefined') ? endpoint : '/fuqu/open-api/log-traffic-messages';
@@ -130,12 +135,12 @@
           getFromDataCenter('/fuqu/factories/browsers/create', function (response) {
             signature = response.signature;
             localStorage.setItem("trafficjam:signature", signature);
-            broadcast({ event: 'browser'});
+            broadcast({event: 'browser'});
           });
 
         }else{
           signature = localStorage.getItem("trafficjam:signature");
-          broadcast({ event: 'browser'});
+          broadcast({event: 'browser'});
         }
 
       }

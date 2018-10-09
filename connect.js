@@ -20,22 +20,21 @@ function processMessage(e) {
 
 }
 
+function onPurchaseResponse(message) {
+  if(message.status == "success"){
+    window.location.href = '/#/success'
+  }
+}
+
 function onEmailResponse(message) {
   if(message.status == "success"){
     window.location.href = '/#/success'
   }
 }
 
-function onStripeToken(message) {
-  if(typeof message.id == 'string' && message.id.indexOf('ok_')){
-
-  }
-}
-
 function onBrowser(message) {
 
   var data = {
-    browser: message.browser,
     event: 'hit'
   }
 
@@ -72,8 +71,10 @@ function addTrafficJamIFrame() {
 function broadcast(data) {
   data.package = 'trafficjam';
   data.version = '0.1';
-  data.location = window.location.href;
+
+  data.href = window.location.href;
   data.referrer = document.referrer ? document.referrer : null;
+
 
   trafficjam.postMessage(JSON.stringify(data), '*');
 }
