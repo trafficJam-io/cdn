@@ -1,3 +1,4 @@
+
 var src = new URL(document.currentScript.src);
 var trafficjam;
 
