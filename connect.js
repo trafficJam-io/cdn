@@ -53,7 +53,7 @@ function bindEvent(element, eventName, eventHandler) {
 function addTrafficJamIFrame() {
 
   var iframe = document.createElement('iframe');
-  var url = src.href.replace('/connect.js', '');
+  var url = src.href.replace('/connect.js', '/index.html');
 
   iframe.src = url;
   iframe.id = 'trafficjam';
