@@ -26,13 +26,17 @@ function onEmailResponse(message) {
   }
 }
 
+function onStripeToken(message) {
+  if(typeof message.id == 'string' && message.id.indexOf('ok_')){
+
+  }
+}
+
 function onBrowser(message) {
 
   var data = {
     browser: message.browser,
-    event: 'hit',
-    location: window.location.href,
-    referrer: document.referrer ? document.referrer : null
+    event: 'hit'
   }
 
   broadcast(data);
@@ -68,6 +72,8 @@ function addTrafficJamIFrame() {
 function broadcast(data) {
   data.package = 'trafficjam';
   data.version = '0.1';
+  data.location = window.location.href;
+  data.referrer = document.referrer ? document.referrer : null;
 
   trafficjam.postMessage(JSON.stringify(data), '*');
 }
