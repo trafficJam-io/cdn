@@ -87,6 +87,10 @@
               callback(JSON.parse(xmlHttp.responseText));
             }
 
+            if(xmlHttp.readyState == 4 && xmlHttp.status == 500){
+              callback(JSON.parse(xmlHttp.responseText));
+            }
+
             if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
               //console.log(xmlHttp);
             }

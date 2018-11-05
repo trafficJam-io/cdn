@@ -24,6 +24,8 @@ function processMessage(e) {
 function onPurchaseResponse(message) {
   if(message.status == "success"){
     window.location.href = '/#/success'
+  }else{
+    alert(message.message);
   }
 }
 
