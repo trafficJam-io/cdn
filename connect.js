@@ -56,7 +56,7 @@ function addTrafficJamIFrame() {
 
   var iframe = document.createElement('iframe');
   var url = src.href.replace('/connect.js', '');
-console.log(url)
+
   iframe.src = url;
   iframe.id = 'trafficjam';
 

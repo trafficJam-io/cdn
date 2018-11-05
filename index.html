@@ -12,7 +12,7 @@
       var signature;
 
       function onStripeToken(data) {
-        sendToDataCenter(data, '/api/log',
+        sendToDataCenter(data, undefined,
           function (response) {
             response.event = 'purchaseResponse';
             broadcast(response);
@@ -20,7 +20,7 @@
       }
 
       function onEmail(data) {
-        sendToDataCenter(data, '/api/log',
+        sendToDataCenter(data, undefined,
           function (response) {
             response.event = 'emailResponse';
             broadcast(response);
