@@ -1,3 +1,5 @@
+var version = '0.1';
+var api = 'v1';
 
 var src = new URL(document.currentScript.src);
 var trafficjam;
@@ -35,6 +37,14 @@ function onEmailResponse(message) {
   }
 }
 
+function onSlugResponse(message) {
+  if(message.status == "success"){
+    alert(message);
+  }else{
+    alert(message.message);
+  }
+}
+
 function onBrowser(message) {
 
   var data = {
@@ -55,7 +65,7 @@ function bindEvent(element, eventName, eventHandler) {
 function addTrafficJamIFrame() {
 
   var iframe = document.createElement('iframe');
-  var url = src.href.replace('/connect.js', '');
+  var url = src.href.replace('.js', '.html');
 
   iframe.src = url;
   iframe.id = 'trafficjam';
@@ -73,7 +83,8 @@ function addTrafficJamIFrame() {
 
 function broadcast(data) {
   data.package = 'trafficjam';
-  data.version = '0.1';
+  data.version = version;
+  data.api =  api;
 
   data.href = window.location.href;
   data.referrer = document.referrer ? document.referrer : null;
@@ -82,7 +93,8 @@ function broadcast(data) {
   trafficjam.postMessage(JSON.stringify(data), '*');
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+
+document.addEventListener('DOMContentLoaded', function() {
   addTrafficJamIFrame();
   bindEvent(window, 'message', processMessage);
 });

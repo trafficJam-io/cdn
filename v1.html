@@ -10,6 +10,16 @@
      *///-----------------------------------------------------------------------
 
       var signature;
+      var version = '0.1';
+      var api = 'v1';
+
+      function onLander(data) {
+        sendToDataCenter(data, 'open-api/{version}/{browser}/landers/{lander}',
+          function (response) {
+            response.event = 'slugResponse';
+            broadcast(response);
+          });
+      }
 
       function onStripeToken(data) {
         sendToDataCenter(data, undefined,
@@ -31,7 +41,6 @@
         sendToDataCenter(data);
       }
 
-
       function bindEvent(element, eventName, eventHandler) {
         if(element.addEventListener){
           element.addEventListener(eventName, eventHandler, false);
@@ -42,7 +51,8 @@
 
       function broadcast(data) {
         data.package = 'trafficjam';
-        data.version = '0.1';
+        data.version = version;
+        data.api = api;
 
         if(typeof signature != 'undefined'){
           data.browser = signature;
@@ -76,7 +86,8 @@
           data.browser = signature;
         }
 
-        endpoint = (typeof endpoint != 'undefined') ? endpoint : '/fuqu/open-api/log-traffic-messages';
+        endpoint = (typeof endpoint != 'undefined') ? endpoint : '/open-api/traffic-message';
+        endpoint = endpoint.replace('{version}', version);
         var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
         var xmlHttp = new XMLHttpRequest();
 
@@ -105,6 +116,11 @@
       }
 
       function getFromDataCenter(endpoint, callback) {
+        endpoint = endpoint.replace('{version}', version);
+        if(typeof signature != undefined){
+          endpoint = endpoint.replace('{browser}', signature);
+        }
+
         var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
 
         var xmlHttp = new XMLHttpRequest();
@@ -133,7 +149,7 @@
         var localStorage = window.localStorage;
 
         if(localStorage.getItem("trafficjam:signature") === null){
-          getFromDataCenter('/fuqu/factories/browsers/create', function (response) {
+          getFromDataCenter('/open-api/browsers/create', function (response) {
             signature = response.signature;
             localStorage.setItem("trafficjam:signature", signature);
             broadcast({event: 'browser'});
