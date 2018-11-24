@@ -14,9 +14,9 @@
       var api = 'v1';
 
       function onLander(data) {
-        sendToDataCenter(data, 'open-api/{version}/{browser}/landers/{lander}',
+        getFromDataCenter('/open-api/{version}/{browser}/lander-slugs/{lander}'.replace('{lander}', data.slug),
           function (response) {
-            response.event = 'slugResponse';
+            response.event = 'landerResponse';
             broadcast(response);
           });
       }
@@ -51,7 +51,7 @@
 
       function broadcast(data) {
         data.package = 'trafficjam';
-        data.version = version;
+        data.version = api;
         data.api = api;
 
         if(typeof signature != 'undefined'){
@@ -87,7 +87,7 @@
         }
 
         endpoint = (typeof endpoint != 'undefined') ? endpoint : '/open-api/traffic-message';
-        endpoint = endpoint.replace('{version}', version);
+        endpoint = endpoint.replace('{version}', api);
         var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
         var xmlHttp = new XMLHttpRequest();
 
@@ -116,7 +116,7 @@
       }
 
       function getFromDataCenter(endpoint, callback) {
-        endpoint = endpoint.replace('{version}', version);
+        endpoint = endpoint.replace('{version}', api);
         if(typeof signature != undefined){
           endpoint = endpoint.replace('{browser}', signature);
         }
@@ -164,8 +164,8 @@
 
       document.addEventListener("DOMContentLoaded", function () {
         bindEvent(window, 'message', processMessage);
-
-        setTimeout(establishBrowserId, 500)
+        establishBrowserId()
+        //setTimeout(establishBrowserId, 500)
       });
     </script>
 

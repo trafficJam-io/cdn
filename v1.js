@@ -16,7 +16,7 @@ function processMessage(e) {
 
     fnc += data.event.charAt(0).toUpperCase() + data.event.slice(1);
     window[fnc](data);
-
+    VueApp.$store.dispatch('hearMessage', data)
   }catch(e){
     //console.log(e.message);
   }
@@ -37,11 +37,12 @@ function onEmailResponse(message) {
   }
 }
 
-function onSlugResponse(message) {
+function onLanderResponse(message) {
   if(message.status == "success"){
-    alert(message);
+    console.log('onLanderResponse');
+    console.log(message);
   }else{
-    alert(message.message);
+    //alert(message.message);
   }
 }
 
@@ -52,6 +53,7 @@ function onBrowser(message) {
   }
 
   broadcast(data);
+  VueApp.$mount('#app');
 }
 
 function bindEvent(element, eventName, eventHandler) {
@@ -82,6 +84,10 @@ function addTrafficJamIFrame() {
 }
 
 function broadcast(data) {
+  if(TRAFFICJAM_MODE != 'prod'){
+    console.log(data)
+  }
+
   data.package = 'trafficjam';
   data.version = version;
   data.api =  api;
