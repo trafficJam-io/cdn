@@ -14,7 +14,7 @@
       var api = 'v1';
 
       function onLander(data) {
-        getFromDataCenter('/open-api/{version}/{browser}/lander-slugs/{lander}'.replace('{lander}', data.slug),
+        getFromDataCenter('/open-api/{version}/{browser}/landers/{lander}'.replace('{lander}', data.slug),
           function (response) {
             response.event = 'landerResponse';
             broadcast(response);
@@ -86,7 +86,7 @@
           data.browser = signature;
         }
 
-        endpoint = (typeof endpoint != 'undefined') ? endpoint : '/open-api/traffic-message';
+        endpoint = (typeof endpoint != 'undefined') ? endpoint : '/open-api/traffic-message/' + data.event.replace(/([A-Z])/g, "-$1").toLowerCase();
         endpoint = endpoint.replace('{version}', api);
         var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
         var xmlHttp = new XMLHttpRequest();

@@ -15,35 +15,14 @@ function processMessage(e) {
     }
 
     fnc += data.event.charAt(0).toUpperCase() + data.event.slice(1);
-    window[fnc](data);
+    if(typeof window[fnc] !== 'undefined'){
+      window[fnc](data);
+    }
     VueApp.$store.dispatch('hearMessage', data)
   }catch(e){
     //console.log(e.message);
   }
 
-}
-
-function onPurchaseResponse(message) {
-  if(message.status == "success"){
-    window.location.href = '/#/success'
-  }else{
-    alert(message.message);
-  }
-}
-
-function onEmailResponse(message) {
-  if(message.status == "success"){
-    window.location.href = '/#/success'
-  }
-}
-
-function onLanderResponse(message) {
-  if(message.status == "success"){
-    console.log('onLanderResponse');
-    console.log(message);
-  }else{
-    //alert(message.message);
-  }
 }
 
 function onBrowser(message) {
