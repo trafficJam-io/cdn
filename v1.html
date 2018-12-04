@@ -14,7 +14,7 @@
       var api = 'v1';
 
       function onLander(data) {
-        getFromDataCenter('/open-api/{version}/{browser}/landers/{lander}'.replace('{lander}', data.slug),
+        getFromDataCenter('/open-api/{version}/{browser}/slugs/{slug}'.replace('{slug}', data.slug),
           function (response) {
             response.event = 'landerResponse';
             broadcast(response);
@@ -51,7 +51,7 @@
 
       function broadcast(data) {
         data.package = 'trafficjam';
-        data.version = api;
+        data.version = version;
         data.api = api;
 
         if(typeof signature != 'undefined'){
@@ -93,16 +93,10 @@
 
         if(typeof callback != 'undefined'){
           xmlHttp.onreadystatechange = function () {
-            if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
-              callback(JSON.parse(xmlHttp.responseText));
-            }
-
-            if(xmlHttp.readyState == 4 && xmlHttp.status == 500){
-              callback(JSON.parse(xmlHttp.responseText));
-            }
-
-            if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
-              //console.log(xmlHttp);
+            if(xmlHttp.readyState == 4){
+              var data = JSON.parse(xmlHttp.responseText);
+              data.http_status = xmlHttp.status;
+              callback(data);
             }
 
           };
@@ -127,12 +121,10 @@
 
         if(typeof callback != 'undefined'){
           xmlHttp.onreadystatechange = function () {
-            if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
-              callback(JSON.parse(xmlHttp.responseText));
-            }
-
-            if(xmlHttp.readyState == 4 && xmlHttp.status != 200){
-              //console.log(xmlHttp);
+            if(xmlHttp.readyState == 4){
+              var data = JSON.parse(xmlHttp.responseText);
+              data.http_status = xmlHttp.status;
+              callback(data);
             }
 
           };

@@ -18,6 +18,7 @@ function processMessage(e) {
     if(typeof window[fnc] !== 'undefined'){
       window[fnc](data);
     }
+
     VueApp.$store.dispatch('hearMessage', data)
   }catch(e){
     //console.log(e.message);
