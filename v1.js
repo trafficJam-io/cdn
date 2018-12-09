@@ -71,6 +71,7 @@ function broadcast(data) {
   data.package = 'trafficjam';
   data.version = version;
   data.api =  api;
+  data.domain = TRAFFICJAM_DOMAIN;
 
   data.href = window.location.href;
   data.referrer = document.referrer ? document.referrer : null;

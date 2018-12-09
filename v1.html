@@ -14,7 +14,7 @@
       var api = 'v1';
 
       function onLander(data) {
-        getFromDataCenter('/open-api/{version}/{browser}/slugs/{slug}'.replace('{slug}', data.slug),
+        getFromDataCenter('/open-api/{version}/{browser}/{domain}/slugs/{slug}'.replace('{domain}', data.domain).replace('{slug}', data.slug),
           function (response) {
             response.event = 'landerResponse';
             broadcast(response);
@@ -38,6 +38,7 @@
       }
 
       function onHit(data) {
+        console.log(data);
         sendToDataCenter(data);
       }
 
@@ -53,6 +54,8 @@
         data.package = 'trafficjam';
         data.version = version;
         data.api = api;
+
+
 
         if(typeof signature != 'undefined'){
           data.browser = signature;
@@ -70,7 +73,7 @@
           if(data.package != 'trafficjam'){
             return;
           }
-
+          console.log(e.message);
           fnc += data.event.charAt(0).toUpperCase() + data.event.slice(1);
           window[fnc](data);
 
@@ -111,6 +114,7 @@
 
       function getFromDataCenter(endpoint, callback) {
         endpoint = endpoint.replace('{version}', api);
+
         if(typeof signature != undefined){
           endpoint = endpoint.replace('{browser}', signature);
         }
