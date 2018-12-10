@@ -64,9 +64,6 @@ function addTrafficJamIFrame() {
 }
 
 function broadcast(data) {
-  if(TRAFFICJAM_MODE != 'prod'){
-    console.log(data)
-  }
 
   data.package = 'trafficjam';
   data.version = version;
