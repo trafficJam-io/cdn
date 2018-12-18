@@ -73,7 +73,7 @@
           if(data.package != 'trafficjam'){
             return;
           }
-          console.log(e.message);
+          //console.log(e.message);
           fnc += data.event.charAt(0).toUpperCase() + data.event.slice(1);
           window[fnc](data);
 

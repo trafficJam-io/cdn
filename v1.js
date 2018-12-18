@@ -73,8 +73,22 @@ function broadcast(data) {
   data.href = window.location.href;
   data.referrer = document.referrer ? document.referrer : null;
 
+  var url_params = parseGetString();
+  for (var attrname in url_params) { data[attrname] = url_params[attrname]; }
 
   trafficjam.postMessage(JSON.stringify(data), '*');
+}
+
+function parseGetString(){
+  var regex = /[?&]([^=#]+)=([^&#]*)/g,
+    url = window.location.href,
+    params = {},
+    match;
+  while(match = regex.exec(url)) {
+    params[match[1]] = match[2];
+  }
+
+  return params;
 }
 
 
