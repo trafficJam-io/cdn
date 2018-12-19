@@ -39,7 +39,11 @@
 
       function onHit(data) {
         console.log(data);
-        sendToDataCenter(data);
+        sendToDataCenter(data, undefined,
+        function (response) {
+          response.event =  'hitResponse';
+          broadcast(response);
+        });
       }
 
       function bindEvent(element, eventName, eventHandler) {
@@ -54,8 +58,6 @@
         data.package = 'trafficjam';
         data.version = version;
         data.api = api;
-
-
 
         if(typeof signature != 'undefined'){
           data.browser = signature;
@@ -161,7 +163,6 @@
       document.addEventListener("DOMContentLoaded", function () {
         bindEvent(window, 'message', processMessage);
         establishBrowserId();
-        //setTimeout(establishBrowserId, 500)
       });
     </script>
 

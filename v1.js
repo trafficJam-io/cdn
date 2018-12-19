@@ -33,6 +33,10 @@ function onBrowser(message) {
   }
 
   broadcast(data);
+  //VueApp.$mount('#app');
+}
+
+function onHitResponse(data) {
   VueApp.$mount('#app');
 }
 
@@ -63,7 +67,7 @@ function addTrafficJamIFrame() {
   trafficjam = document.getElementById('trafficjam').contentWindow;
 }
 
-function broadcast(data) {
+function broadcast(data, callback) {
 
   data.package = 'trafficjam';
   data.version = version;
