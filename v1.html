@@ -13,7 +13,7 @@
       var version = '0.1';
       var api = 'v1';
 
-      function onLander(data) {
+      function onLander (data) {
         getFromDataCenter('/open-api/{version}/{browser}/{domain}/slugs/{slug}'.replace('{domain}', data.domain).replace('{slug}', data.slug),
           function (response) {
             response.event = 'landerResponse';
@@ -21,7 +21,7 @@
           });
       }
 
-      function onStripeToken(data) {
+      function onStripeToken (data) {
         sendToDataCenter(data, undefined,
           function (response) {
             response.event = 'purchaseResponse';
@@ -29,7 +29,7 @@
           });
       }
 
-      function onEmail(data) {
+      function onEmail (data) {
         sendToDataCenter(data, undefined,
           function (response) {
             response.event = 'emailResponse';
@@ -37,57 +37,57 @@
           });
       }
 
-      function onHit(data) {
-        console.log(data);
+      function onHit (data) {
         sendToDataCenter(data, undefined,
-        function (response) {
-          response.event =  'hitResponse';
-          broadcast(response);
-        });
+          function (response) {
+            response.event = 'hitResponse';
+            broadcast(response);
+          });
       }
 
-      function bindEvent(element, eventName, eventHandler) {
-        if(element.addEventListener){
+      function bindEvent (element, eventName, eventHandler) {
+        if (element.addEventListener) {
           element.addEventListener(eventName, eventHandler, false);
-        }else if(element.attachEvent){
+        } else if (element.attachEvent) {
           element.attachEvent('on' + eventName, eventHandler);
         }
       }
 
-      function broadcast(data) {
+      function broadcast (data) {
+
         data.package = 'trafficjam';
         data.version = version;
         data.api = api;
 
-        if(typeof signature != 'undefined'){
+        if (typeof signature != 'undefined') {
           data.browser = signature;
         }
 
         window.parent.postMessage(JSON.stringify(data), '*');
       }
 
-      function processMessage(e) {
+      function processMessage (e) {
 
-        try{
+        try {
           var data = JSON.parse(e.data);
           var fnc = 'on';
 
-          if(data.package != 'trafficjam'){
+          if (data.package != 'trafficjam') {
             return;
           }
-          //console.log(e.message);
+
           fnc += data.event.charAt(0).toUpperCase() + data.event.slice(1);
           window[fnc](data);
 
-        }catch(e){
+        } catch (e) {
           //console.log(e.message);
         }
 
       }
 
-      function sendToDataCenter(data, endpoint, callback) {
+      function sendToDataCenter (data, endpoint, callback) {
 
-        if(typeof signature != 'undefined'){
+        if (typeof signature != 'undefined') {
           data.browser = signature;
         }
 
@@ -96,9 +96,9 @@
         var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
         var xmlHttp = new XMLHttpRequest();
 
-        if(typeof callback != 'undefined'){
+        if (typeof callback != 'undefined') {
           xmlHttp.onreadystatechange = function () {
-            if(xmlHttp.readyState == 4){
+            if (xmlHttp.readyState == 4) {
               var data = JSON.parse(xmlHttp.responseText);
               data.http_status = xmlHttp.status;
               callback(data);
@@ -114,10 +114,10 @@
         xmlHttp.send(data);
       }
 
-      function getFromDataCenter(endpoint, callback) {
+      function getFromDataCenter (endpoint, callback) {
         endpoint = endpoint.replace('{version}', api);
 
-        if(typeof signature != undefined){
+        if (typeof signature != undefined) {
           endpoint = endpoint.replace('{browser}', signature);
         }
 
@@ -125,12 +125,17 @@
 
         var xmlHttp = new XMLHttpRequest();
 
-        if(typeof callback != 'undefined'){
+        if (typeof callback != 'undefined') {
           xmlHttp.onreadystatechange = function () {
-            if(xmlHttp.readyState == 4){
+
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
               var data = JSON.parse(xmlHttp.responseText);
               data.http_status = xmlHttp.status;
               callback(data);
+            }
+
+            if (xmlHttp.readyState == 4 && xmlHttp.status != 200) {
+              callback({status: 'error', http_status:404})
             }
 
           };
@@ -139,23 +144,26 @@
         xmlHttp.open("GET", url, true);
         xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
         xmlHttp.setRequestHeader("Content-Type", "application/json");
+
         xmlHttp.send(null);
+
+
       }
 
-      function establishBrowserId() {
+      function establishBrowserId () {
 
         var localStorage = window.localStorage;
 
-        if(localStorage.getItem("trafficjam:signature") === null){
+        if (localStorage.getItem("trafficjam:signature") === null) {
           getFromDataCenter('/open-api/browsers/create', function (response) {
             signature = response.signature;
             localStorage.setItem("trafficjam:signature", signature);
-            broadcast({event: 'browser'});
+            broadcast({ event: 'browser' });
           });
 
-        }else{
+        } else {
           signature = localStorage.getItem("trafficjam:signature");
-          broadcast({event: 'browser'});
+          broadcast({ event: 'browser' });
         }
 
       }
