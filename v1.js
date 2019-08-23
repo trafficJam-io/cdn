@@ -27,7 +27,6 @@ function processMessage(e) {
 }
 
 function onBrowser(message) {
-
   var data = {
     event: 'hit'
   }

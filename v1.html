@@ -117,25 +117,24 @@
       function getFromDataCenter (endpoint, callback) {
         endpoint = endpoint.replace('{version}', api);
 
-        if (typeof signature != undefined) {
+        if (typeof signature != undefined && signature != 'undefined') {
           endpoint = endpoint.replace('{browser}', signature);
         }
 
         var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
-
         var xmlHttp = new XMLHttpRequest();
 
         if (typeof callback != 'undefined') {
           xmlHttp.onreadystatechange = function () {
 
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+            if (xmlHttp.readyState == 4 && xmlHttp.status >= 200 && xmlHttp.status < 300) {
               var data = JSON.parse(xmlHttp.responseText);
               data.http_status = xmlHttp.status;
               callback(data);
             }
 
-            if (xmlHttp.readyState == 4 && xmlHttp.status != 200) {
-              callback({status: 'error', http_status:404})
+            if (xmlHttp.readyState == 4 && (xmlHttp.status < 200 || xmlHttp.status >= 300)) {
+              callback({status: 'error', http_status: xmlHttp.status})
             }
 
           };
@@ -146,15 +145,13 @@
         xmlHttp.setRequestHeader("Content-Type", "application/json");
 
         xmlHttp.send(null);
-
-
       }
 
       function establishBrowserId () {
 
         var localStorage = window.localStorage;
 
-        if (localStorage.getItem("trafficjam:signature") === null) {
+        if (localStorage.getItem("trafficjam:signature") === null || localStorage.getItem("trafficjam:signature") == 'undefined') {
           getFromDataCenter('/open-api/browsers/create', function (response) {
             signature = response.signature;
             localStorage.setItem("trafficjam:signature", signature);
