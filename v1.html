@@ -170,12 +170,21 @@
 
         }
 
-        function establishEngagementId() {
-            var url_params = parseGetString();
 
-            if (typeof url_params['eng'] != 'undefined' && url_params['eng'].substring(0, 2) === "IO") {
-                localStorage.setItem("trafficjam:engagement", url_params['eng']);
-                engagement = url_params['eng'];
+
+        function establishEngagementId() {
+
+            var regex = /[?&]([^=#]+)=([^&#]*)/g,
+                url = window.location.href,
+                params = {},
+                match;
+            while(match = regex.exec(url)) {
+                params[match[1]] = match[2];
+            }
+
+            if (typeof params['eng'] != 'undefined' && params['eng'].substring(0, 2) === "IO") {
+                localStorage.setItem("trafficjam:engagement", params['eng']);
+                engagement = params['eng'];
             } else if (localStorage.getItem("trafficjam:engagement") === null || localStorage.getItem("trafficjam:engagement") == 'undefined') {
                 engagement = localStorage.getItem("trafficjam:engagement");
             }
