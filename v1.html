@@ -4,171 +4,187 @@
     <meta charset="utf-8">
     <title>iframe Window</title>
     <script>
-      /*--------------------------------------------------------------------------
-     * TrafficJam
-     * 2018-10-01
-     *///-----------------------------------------------------------------------
+        /*--------------------------------------------------------------------------
+       * TrafficJam
+       * 2018-10-01
+       *///-----------------------------------------------------------------------
 
-      var signature;
-      var version = '0.1';
-      var api = 'v1';
-
-      function onLander (data) {
-        getFromDataCenter('/open-api/{version}/{browser}/{domain}/slugs/{slug}'.replace('{domain}', data.domain).replace('{slug}', data.slug),
-          function (response) {
-            response.event = 'landerResponse';
-            broadcast(response);
-          });
-      }
-
-      function onStripeToken (data) {
-        sendToDataCenter(data, undefined,
-          function (response) {
-            response.event = 'purchaseResponse';
-            broadcast(response);
-          });
-      }
-
-      function onEmail (data) {
-        sendToDataCenter(data, undefined,
-          function (response) {
-            response.event = 'emailResponse';
-            broadcast(response);
-          });
-      }
-
-      function onHit (data) {
-        sendToDataCenter(data, undefined,
-          function (response) {
-            response.event = 'hitResponse';
-            broadcast(response);
-          });
-      }
-
-      function bindEvent (element, eventName, eventHandler) {
-        if (element.addEventListener) {
-          element.addEventListener(eventName, eventHandler, false);
-        } else if (element.attachEvent) {
-          element.attachEvent('on' + eventName, eventHandler);
-        }
-      }
-
-      function broadcast (data) {
-
-        data.package = 'trafficjam';
-        data.version = version;
-        data.api = api;
-
-        if (typeof signature != 'undefined') {
-          data.browser = signature;
-        }
-
-        window.parent.postMessage(JSON.stringify(data), '*');
-      }
-
-      function processMessage (e) {
-
-        try {
-          var data = JSON.parse(e.data);
-          var fnc = 'on';
-
-          if (data.package != 'trafficjam') {
-            return;
-          }
-
-          fnc += data.event.charAt(0).toUpperCase() + data.event.slice(1);
-          window[fnc](data);
-
-        } catch (e) {
-          //console.log(e.message);
-        }
-
-      }
-
-      function sendToDataCenter (data, endpoint, callback) {
-
-        if (typeof signature != 'undefined') {
-          data.browser = signature;
-        }
-
-        endpoint = (typeof endpoint != 'undefined') ? endpoint : '/open-api/traffic-message/' + data.event.replace(/([A-Z])/g, "-$1").toLowerCase();
-        endpoint = endpoint.replace('{version}', api);
-        var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
-        var xmlHttp = new XMLHttpRequest();
-
-        if (typeof callback != 'undefined') {
-          xmlHttp.onreadystatechange = function () {
-            if (xmlHttp.readyState == 4) {
-              var data = JSON.parse(xmlHttp.responseText);
-              data.http_status = xmlHttp.status;
-              callback(data);
-            }
-
-          };
-        }
-
-        xmlHttp.open("POST", url, true);
-        xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
-        xmlHttp.setRequestHeader("Content-Type", "application/json");
-        data = JSON.stringify(data);
-        xmlHttp.send(data);
-      }
-
-      function getFromDataCenter (endpoint, callback) {
-        endpoint = endpoint.replace('{version}', api);
-
-        if (typeof signature != undefined && signature != 'undefined') {
-          endpoint = endpoint.replace('{browser}', signature);
-        }
-
-        var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
-        var xmlHttp = new XMLHttpRequest();
-
-        if (typeof callback != 'undefined') {
-          xmlHttp.onreadystatechange = function () {
-
-            if (xmlHttp.readyState == 4 && xmlHttp.status >= 200 && xmlHttp.status < 300) {
-              var data = JSON.parse(xmlHttp.responseText);
-              data.http_status = xmlHttp.status;
-              callback(data);
-            }
-
-            if (xmlHttp.readyState == 4 && (xmlHttp.status < 200 || xmlHttp.status >= 300)) {
-              callback({status: 'error', http_status: xmlHttp.status})
-            }
-
-          };
-        }
-
-        xmlHttp.open("GET", url, true);
-        xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
-        xmlHttp.setRequestHeader("Content-Type", "application/json");
-
-        xmlHttp.send(null);
-      }
-
-      function establishBrowserId () {
-
+        var signature;
+        var engagement;
+        var version = '0.1';
+        var api = 'v1';
         var localStorage = window.localStorage;
 
-        if (localStorage.getItem("trafficjam:signature") === null || localStorage.getItem("trafficjam:signature") == 'undefined') {
-          getFromDataCenter('/open-api/browsers/create', function (response) {
-            signature = response.signature;
-            localStorage.setItem("trafficjam:signature", signature);
-            broadcast({ event: 'browser' });
-          });
-
-        } else {
-          signature = localStorage.getItem("trafficjam:signature");
-          broadcast({ event: 'browser' });
+        function onLander(data) {
+            getFromDataCenter('/open-api/{version}/{browser}/{domain}/slugs/{slug}'.replace('{domain}', data.domain).replace('{slug}', data.slug),
+                function (response) {
+                    response.event = 'landerResponse';
+                    broadcast(response);
+                });
         }
 
-      }
+        function onStripeToken(data) {
+            sendToDataCenter(data, undefined,
+                function (response) {
+                    response.event = 'purchaseResponse';
+                    broadcast(response);
+                });
+        }
 
-      document.addEventListener("DOMContentLoaded", function () {
-        bindEvent(window, 'message', processMessage);
-        establishBrowserId();
-      });
+        function onEmail(data) {
+            sendToDataCenter(data, undefined,
+                function (response) {
+                    response.event = 'emailResponse';
+                    broadcast(response);
+                });
+        }
+
+        function onHit(data) {
+            sendToDataCenter(data, undefined,
+                function (response) {
+                    response.event = 'hitResponse';
+                    broadcast(response);
+                });
+        }
+
+        function bindEvent(element, eventName, eventHandler) {
+            if (element.addEventListener) {
+                element.addEventListener(eventName, eventHandler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent('on' + eventName, eventHandler);
+            }
+        }
+
+        function broadcast(data) {
+
+            data.package = 'trafficjam';
+            data.version = version;
+            data.api = api;
+
+            if (typeof signature != 'undefined') {
+                data.browser = signature;
+            }
+
+            window.parent.postMessage(JSON.stringify(data), '*');
+        }
+
+        function processMessage(e) {
+
+            try {
+                var data = JSON.parse(e.data);
+                var fnc = 'on';
+
+                if (data.package != 'trafficjam') {
+                    return;
+                }
+
+                fnc += data.event.charAt(0).toUpperCase() + data.event.slice(1);
+                window[fnc](data);
+
+            } catch (e) {
+                //console.log(e.message);
+            }
+
+        }
+
+        function sendToDataCenter(data, endpoint, callback) {
+
+            if (typeof signature != 'undefined') {
+                data.browser = signature;
+            }
+
+            if (typeof engagement != 'undefined') {
+                data.engagement = engagement;
+            }
+
+            endpoint = (typeof endpoint != 'undefined') ? endpoint : '/open-api/traffic-message/' + data.event.replace(/([A-Z])/g, "-$1").toLowerCase();
+            endpoint = endpoint.replace('{version}', api);
+            var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
+            var xmlHttp = new XMLHttpRequest();
+
+            if (typeof callback != 'undefined') {
+                xmlHttp.onreadystatechange = function () {
+                    if (xmlHttp.readyState == 4) {
+                        var data = JSON.parse(xmlHttp.responseText);
+                        data.http_status = xmlHttp.status;
+                        callback(data);
+                    }
+
+                };
+            }
+
+            xmlHttp.open("POST", url, true);
+            xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
+            xmlHttp.setRequestHeader("Content-Type", "application/json");
+            data = JSON.stringify(data);
+            xmlHttp.send(data);
+        }
+
+        function getFromDataCenter(endpoint, callback) {
+            endpoint = endpoint.replace('{version}', api);
+
+            if (typeof signature != undefined && signature != 'undefined') {
+                endpoint = endpoint.replace('{browser}', signature);
+            }
+
+            var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
+            var xmlHttp = new XMLHttpRequest();
+
+            if (typeof callback != 'undefined') {
+                xmlHttp.onreadystatechange = function () {
+
+                    if (xmlHttp.readyState == 4 && xmlHttp.status >= 200 && xmlHttp.status < 300) {
+                        var data = JSON.parse(xmlHttp.responseText);
+                        data.http_status = xmlHttp.status;
+                        callback(data);
+                    }
+
+                    if (xmlHttp.readyState == 4 && (xmlHttp.status < 200 || xmlHttp.status >= 300)) {
+                        callback({status: 'error', http_status: xmlHttp.status})
+                    }
+
+                };
+            }
+
+            xmlHttp.open("GET", url, true);
+            xmlHttp.setRequestHeader("Access-Control-Allow-Credentials", true);
+            xmlHttp.setRequestHeader("Content-Type", "application/json");
+
+            xmlHttp.send(null);
+        }
+
+        function establishBrowserId() {
+
+            if (localStorage.getItem("trafficjam:signature") === null || localStorage.getItem("trafficjam:signature") == 'undefined') {
+                getFromDataCenter('/open-api/browsers/create', function (response) {
+                    signature = response.signature;
+                    localStorage.setItem("trafficjam:signature", signature);
+                    broadcast({event: 'browser'});
+                });
+
+            } else {
+                signature = localStorage.getItem("trafficjam:signature");
+                broadcast({event: 'browser'});
+            }
+
+        }
+
+        function establishEngagementId() {
+            var url_params = parseGetString();
+
+            if (typeof url_params['eng'] != 'undefined' && url_params['eng'].substring(0, 2) === "IO") {
+                localStorage.setItem("trafficjam:engagement", url_params['eng']);
+                engagement = url_params['eng'];
+            } else if (localStorage.getItem("trafficjam:engagement") === null || localStorage.getItem("trafficjam:engagement") == 'undefined') {
+                engagement = localStorage.getItem("trafficjam:engagement");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            bindEvent(window, 'message', processMessage);
+            establishBrowserId();
+            establishEngagementId();
+        });
     </script>
 
 </head>
