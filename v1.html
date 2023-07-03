@@ -11,7 +11,6 @@
        *///-----------------------------------------------------------------------
 
         var signature;
-        var engagement;
         var version = '0.1';
         var api = 'v1';
         var localStorage = window.localStorage;
@@ -94,10 +93,6 @@
                 data.browser = signature;
             }
 
-            if (typeof engagement != 'undefined') {
-                data.engagement = engagement;
-            }
-
             endpoint = (typeof endpoint != 'undefined') ? endpoint : '/open-api/traffic-message/' + data.event.replace(/([A-Z])/g, "-$1").toLowerCase();
             endpoint = endpoint.replace('{version}', api);
             var url = '//' + document.location.host.replace('cdn.', '') + endpoint;
@@ -170,30 +165,9 @@
 
         }
 
-
-
-        function establishEngagementId() {
-
-            var regex = /[?&]([^=#]+)=([^&#]*)/g,
-                url = window.location.href,
-                params = {},
-                match;
-            while(match = regex.exec(url)) {
-                params[match[1]] = match[2];
-            }
-
-            if (typeof params['eng'] != 'undefined' && params['eng'].substring(0, 2) === "IO") {
-                localStorage.setItem("trafficjam:engagement", params['eng']);
-                engagement = params['eng'];
-            } else if (localStorage.getItem("trafficjam:engagement") === null || localStorage.getItem("trafficjam:engagement") == 'undefined') {
-                engagement = localStorage.getItem("trafficjam:engagement");
-            }
-        }
-
         document.addEventListener("DOMContentLoaded", function () {
             bindEvent(window, 'message', processMessage);
             establishBrowserId();
-            establishEngagementId();
         });
     </script>
 
